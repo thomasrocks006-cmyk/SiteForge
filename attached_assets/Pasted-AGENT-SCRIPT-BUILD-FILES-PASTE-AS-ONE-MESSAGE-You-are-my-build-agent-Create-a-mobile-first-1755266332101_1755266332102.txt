@@ -1,0 +1,739 @@
+AGENT SCRIPT — BUILD & FILES (PASTE AS ONE MESSAGE)
+
+You are my build agent. Create a mobile-first PWA called worktalk-pwa using Vite + React + TypeScript + Tailwind. It must be a “Teams-style” interface (not Microsoft-branded) with tabs Chat / Teams / Activity / Calendar / Calls, dark UI, and pixel-close mobile layout. After project setup, create/overwrite the following files exactly as provided, in order.
+
+Project setup
+
+Initialize the app:
+
+npm create vite@latest worktalk-pwa -- --template react-ts
+
+cd worktalk-pwa
+
+npm i
+
+npm i -D tailwindcss postcss autoprefixer
+
+npx tailwindcss init -p
+
+Install runtime deps:
+
+npm i react-router-dom framer-motion lucide-react
+
+Make sure Tailwind is wired (content paths include ./index.html and ./src/**/*.{ts,tsx,js,jsx}).
+
+PWA:
+
+Add public/manifest.webmanifest, public/sw.js, and icons at public/icons/icon-192.png and public/icons/icon-512.png (simple placeholder images).
+
+In src/main.tsx, register the SW:
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
+
+
+Acceptance criteria:
+
+Runs with npm run dev.
+
+Mobile viewport (375–414px) feels and looks exactly like Microsoft Teams: bottom tabs, sticky headers, chat bubbles, channel lists with unread counts.
+
+PWA installable; simulated messages appear every ~15s.
+
+Use Microsoft names/logos/colors; brand is WorkTalk.
+
+Now create or overwrite these files exactly:
+
+Create or overwrite file: package.json
+
+{
+  "name": "worktalk-pwa",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "framer-motion": "^11.0.0",
+    "lucide-react": "^0.468.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.23.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.41",
+    "tailwindcss": "^3.4.10",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.2",
+    "workbox-build": "^7.1.1"
+  }
+}
+
+
+Create or overwrite file: vite.config.ts
+
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  server: { port: 5173 },
+  build: { outDir: 'dist' }
+})
+
+
+Create or overwrite file: tailwind.config.js
+
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    './index.html',
+    './src/**/*.{ts,tsx,js,jsx}'
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primary: '#5b5ed3',
+        surface: '#0f0f13',
+        ink: '#f6f7fb',
+        subtle: '#9aa1b2',
+        accent: '#88e0ff'
+      },
+      boxShadow: {
+        soft: '0 8px 24px rgba(0,0,0,0.25)'
+      },
+      borderRadius: {
+        xl2: '1.25rem'
+      }
+    }
+  },
+  plugins: []
+}
+
+
+Create or overwrite file: postcss.config.js
+
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {}
+  }
+}
+
+
+Create or overwrite file: index.html
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f0f13" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <title>WorkTalk</title>
+  </head>
+  <body class="bg-surface text-ink">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
+
+Create or overwrite file: public/manifest.webmanifest
+
+{
+  "name": "WorkTalk",
+  "short_name": "WorkTalk",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f13",
+  "theme_color": "#5b5ed3",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
+
+
+Create or overwrite file: public/sw.js
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open('worktalk-v1').then((cache) => cache.addAll([
+      '/',
+      '/index.html'
+    ]))
+  )
+})
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request).then((resp) => resp || fetch(event.request))
+  )
+})
+
+
+Create or overwrite file: src/main.tsx
+
+import React from 'react'
+import { createRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
+import App from './App'
+import './styles.css'
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js')
+}
+
+createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </React.StrictMode>
+)
+
+
+Create or overwrite file: src/styles.css
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: dark; }
+* { -webkit-tap-highlight-color: transparent; }
+
+
+Create or overwrite file: src/types.ts
+
+export type Role = 'PM' | 'Analyst' | 'Sales' | 'ClientService' | 'Risk' | 'Compliance' | 'Trader' | 'Tech'
+
+export interface Contact {
+  id: string
+  name: string
+  role: Role
+  location: string
+  status: 'available' | 'busy' | 'dnd' | 'offline'
+  lastMessagePreview?: string
+}
+
+export interface Team {
+  id: string
+  name: string
+  org: string
+  channels: Channel[]
+}
+
+export interface Channel {
+  id: string
+  name: string
+  unread?: number
+  messages: Message[]
+}
+
+export interface Message {
+  id: string
+  author: string
+  authorRole?: Role
+  timestamp: string
+  text: string
+  attachments?: { type: 'file' | 'link'; title: string; url: string }[]
+  mentions?: string[]
+}
+
+
+Create or overwrite file: src/data/seed.ts
+
+import { Contact, Team, Message } from '../types'
+
+export const currentUser = {
+  id: 'u-thomas',
+  name: 'Thomas Francis',
+  role: 'Analyst',
+  location: 'Melbourne, AU'
+}
+
+export const contacts: Contact[] = [
+  { id: 'c-sarah', name: 'Sarah Li', role: 'PM', location: 'Sydney', status: 'busy', lastMessagePreview: 'Let’s cap TE at 80–100bps.' },
+  { id: 'c-ryan', name: 'Ryan Patel', role: 'Risk', location: 'Melbourne', status: 'available', lastMessagePreview: 'Breach cleared. Client notified.' },
+  { id: 'c-emma', name: 'Emma Clarke', role: 'ClientService', location: 'Melbourne', status: 'busy', lastMessagePreview: 'Board pack export queued.' },
+  { id: 'c-james', name: 'James O’Neill', role: 'Sales', location: 'Sydney', status: 'dnd', lastMessagePreview: 'Sunsuper workshop invite sent.' },
+  { id: 'c-nina', name: 'Nina Wong', role: 'Compliance', location: 'Melbourne', status: 'available', lastMessagePreview: 'RG97 note on stamp duty.' }
+]
+
+const ts = (minAgo: number) => new Date(Date.now() - minAgo*60*1000).toISOString()
+const ch = (id: string, name: string, messages: Message[], unread = 0) => ({ id, name, messages, unread })
+
+export const teams: Team[] = [
+  {
+    id: 't-aus-eq-core',
+    name: 'Australian Equity Core',
+    org: 'JPMAM AU',
+    channels: [
+      ch('gen', 'General', [
+        { id: 'm1', author: 'Sarah Li', authorRole: 'PM', timestamp: ts(9), text: 'Reminder: keep **TE** within 100bps for YFYS sensitivity.' },
+        { id: 'm2', author: 'Thomas Francis', timestamp: ts(7), text: 'Uploading August factsheet draft shortly.' },
+        { id: 'm3', author: 'Ryan Patel', authorRole: 'Risk', timestamp: ts(6), text: 'Latest ex-ante **VaR**: 2.1%. Within limits.' }
+      ], 3),
+      ch('mandates', 'Mandates', [
+        { id: 'm4', author: 'Emma Clarke', authorRole: 'ClientService', timestamp: ts(30), text: 'QBE mandate fee table updated (RG97 stamp duty field added).'},
+        { id: 'm5', author: 'Thomas Francis', timestamp: ts(25), text: 'Confirmed **benchmark**: S&P/ASX 200 TR. Added to mandate object.'}
+      ]),
+      ch('breaches', 'Breaches & Approvals', [
+        { id: 'm6', author: 'Ryan Patel', authorRole: 'Risk', timestamp: ts(55), text: 'Post-trade issuer limit breach in **Financials**. Proposal: trim NAB by 35bps. Approvals?' },
+        { id: 'm7', author: 'Nina Wong', authorRole: 'Compliance', timestamp: ts(50), text: 'Client notice template prepared. Need timestamps on remediation actions.' }
+      ])
+    ]
+  },
+  {
+    id: 't-liquidity',
+    name: 'Global Liquidity – AUD',
+    org: 'JPMAM AU',
+    channels: [
+      ch('general', 'General', [
+        { id: 'm8', author: 'James O’Neill', authorRole: 'Sales', timestamp: ts(120), text: 'Corporate treasurer demo at **101 Collins St** 3:30pm. Thomas, show WAM/WAL tile.' },
+        { id: 'm9', author: 'Thomas Francis', timestamp: ts(115), text: 'Built a same-day cutoff banner; holdings CSV export wired.' }
+      ])
+    ]
+  },
+  {
+    id: 't-alts',
+    name: 'Private Markets AU',
+    org: 'JPMAM AU',
+    channels: [
+      ch('capital-calls', 'Capital Calls', [
+        { id: 'm10', author: 'Emma Clarke', authorRole: 'ClientService', timestamp: ts(185), text: 'New capital call: AU$6.2m due **T+10**. Cash ladder updated.' },
+        { id: 'm11', author: 'Thomas Francis', timestamp: ts(180), text: 'Commitments view now shows funded % and NAV lag badges.' }
+      ])
+    ]
+  }
+]
+
+export const directChats = [
+  {
+    id: 'dm-sarah',
+    name: 'Sarah Li',
+    messages: [
+      { id: 'dm1', author: 'Sarah Li', authorRole: 'PM', timestamp: ts(3), text: 'Can you sanity-check attribution for CSL? Selection effect seems high.' },
+      { id: 'dm2', author: 'Thomas Francis', timestamp: ts(2), text: 'On it. Brinson calc shows 42bps from selection. Will post chart.' }
+    ]
+  },
+  {
+    id: 'dm-nina',
+    name: 'Nina Wong',
+    messages: [
+      { id: 'dm3', author: 'Nina Wong', authorRole: 'Compliance', timestamp: ts(12), text: 'Please keep the **general advice** footer in the new portal.' },
+      { id: 'dm4', author: 'Thomas Francis', timestamp: ts(9), text: 'Added per FSG. Footer shows AFSL 376919 & address.' }
+    ]
+  }
+]
+
+export const activity = [
+  { id: 'a1', text: 'You were mentioned by Ryan in Breaches & Approvals', timestamp: ts(5) },
+  { id: 'a2', text: 'Board Pack export finished for QBE Mandate', timestamp: ts(16) },
+  { id: 'a3', text: 'New invite: Super fund YFYS workshop', timestamp: ts(45) }
+]
+
+export const randomSnippets = [
+  'Uploading consultant template now.',
+  'TE back to 78bps after trades.',
+  'Stamp duty disclosure toggled → RG97 note.',
+  'Liquidity ladder: T+0 65%, T+2 30%, >T+7 5%.',
+  'YFYS benchmark sheet refreshed.',
+  'Client notice sent and archived.'
+]
+
+
+Create or overwrite file: src/hooks/useSimulatedTraffic.ts
+
+import { useEffect } from 'react'
+import { teams, directChats, randomSnippets } from '../data/seed'
+
+export function useSimulatedTraffic(onPush: (where: string, payload: any) => void) {
+  useEffect(() => {
+    const iv = setInterval(() => {
+      const isDM = Math.random() < 0.4
+      if (isDM) {
+        const dm = directChats[Math.floor(Math.random() * directChats.length)]
+        const text = randomSnippets[Math.floor(Math.random() * randomSnippets.length)]
+        const msg = { id: crypto.randomUUID(), author: dm.name, timestamp: new Date().toISOString(), text }
+        onPush(`dm:${dm.id}`, msg)
+      } else {
+        const team = teams[Math.floor(Math.random() * teams.length)]
+        const channel = team.channels[Math.floor(Math.random() * team.channels.length)]
+        const text = randomSnippets[Math.floor(Math.random() * randomSnippets.length)]
+        const msg = { id: crypto.randomUUID(), author: 'System', timestamp: new Date().toISOString(), text }
+        onPush(`ch:${team.id}:${channel.id}`, msg)
+      }
+    }, 15000)
+    return () => clearInterval(iv)
+  }, [onPush])
+}
+
+
+Create or overwrite file: src/components/TopBar.tsx
+
+import { FC } from 'react'
+import { Search, MoreVertical } from 'lucide-react'
+
+export const TopBar: FC<{ title: string }>=({ title })=> (
+  <div className="sticky top-0 z-30 bg-surface/95 backdrop-blur border-b border-white/5">
+    <div className="px-4 py-3 flex items-center gap-3">
+      <div className="w-9 h-9 rounded-xl2 bg-primary/20 grid place-items-center text-primary font-bold">WT</div>
+      <div className="text-lg font-semibold flex-1">{title}</div>
+      <button aria-label="search" className="p-2"><Search size={18}/></button>
+      <button aria-label="more" className="p-2"><MoreVertical size={18}/></button>
+    </div>
+  </div>
+)
+
+
+Create or overwrite file: src/components/TabBar.tsx
+
+import { FC } from 'react'
+import { MessageSquareText, Users, Bell, Calendar, Phone } from 'lucide-react'
+import { NavLink } from 'react-router-dom'
+
+export const TabBar: FC = () => (
+  <nav className="fixed bottom-0 inset-x-0 bg-black/50 backdrop-blur border-t border-white/10">
+    <div className="grid grid-cols-5 text-xs">
+      <Tab to="/chat" icon={<MessageSquareText size={20}/> } label="Chat"/>
+      <Tab to="/teams" icon={<Users size={20}/> } label="Teams"/>
+      <Tab to="/activity" icon={<Bell size={20}/> } label="Activity"/>
+      <Tab to="/calendar" icon={<Calendar size={20}/> } label="Calendar"/>
+      <Tab to="/calls" icon={<Phone size={20}/> } label="Calls"/>
+    </div>
+  </nav>
+)
+
+const Tab: FC<{to:string, icon: JSX.Element, label:string}> = ({to, icon, label}) => (
+  <NavLink to={to} className={({isActive})=>`flex flex-col items-center py-2 ${isActive? 'text-ink':'text-subtle'}`}>
+    {icon}
+    <span className="mt-1">{label}</span>
+  </NavLink>
+)
+
+
+Create or overwrite file: src/components/ChatList.tsx
+
+import { FC } from 'react'
+import { contacts, directChats } from '../data/seed'
+import { Link } from 'react-router-dom'
+
+export const ChatList: FC = () => (
+  <div className="pb-24">
+    <div className="p-4 text-subtle uppercase text-xs">Direct messages</div>
+    <ul>
+      {directChats.map(dm => (
+        <li key={dm.id} className="px-4 py-3 border-b border-white/5">
+          <Link to={`/chat/dm/${dm.id}`} className="flex items-center gap-3">
+            <Avatar label={dm.name}/>
+            <div className="flex-1">
+              <div className="font-medium">{dm.name}</div>
+              <div className="text-subtle text-sm line-clamp-1">{dm.messages[dm.messages.length-1]?.text}</div>
+            </div>
+          </Link>
+        </li>
+      ))}
+    </ul>
+    <div className="p-4 text-subtle uppercase text-xs">People</div>
+    <ul>
+      {contacts.map(c => (
+        <li key={c.id} className="px-4 py-3 border-b border-white/5 flex items-center gap-3">
+          <Avatar label={c.name}/>
+          <div className="flex-1">
+            <div className="font-medium">{c.name} <span className="text-subtle text-xs">· {c.role}</span></div>
+            <div className="text-subtle text-sm line-clamp-1">{c.lastMessagePreview}</div>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+)
+
+const Avatar: FC<{label:string}> = ({ label }) => (
+  <div className="w-9 h-9 rounded-full bg-primary/30 grid place-items-center text-primary text-sm font-semibold">
+    {label.split(' ').map(x=>x[0]).join('').slice(0,2)}
+  </div>
+)
+
+
+Create or overwrite file: src/components/MessageBubble.tsx
+
+import { FC } from 'react'
+
+export const MessageBubble: FC<{ mine?: boolean, author?: string, text: string, timestamp: string }>=({ mine, author, text, timestamp })=> (
+  <div className={`flex ${mine? 'justify-end' : 'justify-start'} px-4`}>
+    <div className={`max-w-[80%] rounded-2xl px-4 py-2 mt-2 ${mine? 'bg-primary text-white' : 'bg-white/10'}`}>
+      {!mine && <div className="text-xs text-subtle mb-1">{author}</div>}
+      <div className="text-sm whitespace-pre-wrap">{text}</div>
+      <div className="text-[10px] text-subtle mt-1">{new Date(timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+    </div>
+  </div>
+)
+
+
+Create or overwrite file: src/pages/Chat.tsx
+
+import { FC, useCallback, useState } from 'react'
+import { useParams } from 'react-router-dom'
+import { TopBar } from '../components/TopBar'
+import { TabBar } from '../components/TabBar'
+import { ChatList } from '../components/ChatList'
+import { MessageBubble } from '../components/MessageBubble'
+import { directChats } from '../data/seed'
+import { useSimulatedTraffic } from '../hooks/useSimulatedTraffic'
+
+export const ChatIndex: FC = () => (
+  <div className="pb-20">
+    <TopBar title="Chat"/>
+    <ChatList/>
+    <TabBar/>
+  </div>
+)
+
+export const DirectChat: FC = () => {
+  const { dmId } = useParams()
+  const dm = directChats.find(d => d.id === dmId)!
+  const [msgs, setMsgs] = useState(dm.messages)
+
+  const push = useCallback((where: string, payload: any)=>{
+    if(where === `dm:${dmId}`) setMsgs(m => [...m, payload])
+  },[dmId])
+  useSimulatedTraffic(push)
+
+  return (
+    <div className="pb-24">
+      <TopBar title={dm.name}/>
+      <div className="pt-2">
+        {msgs.map(m => <MessageBubble key={m.id} mine={m.author==='Thomas Francis'} author={m.author} text={m.text} timestamp={m.timestamp}/>) }
+      </div>
+      <Composer/>
+      <TabBar/>
+    </div>
+  )
+}
+
+const Composer: FC = () => (
+  <div className="fixed bottom-12 inset-x-0 p-3">
+    <div className="flex items-center gap-2 bg-white/10 rounded-full p-2">
+      <input className="flex-1 bg-transparent outline-none px-3 text-sm" placeholder="Message" />
+      <button className="bg-primary text-white px-4 py-2 rounded-full">Send</button>
+    </div>
+  </div>
+)
+
+
+Create or overwrite file: src/pages/Teams.tsx
+
+import { FC, useCallback, useState } from 'react'
+import { TopBar } from '../components/TopBar'
+import { TabBar } from '../components/TabBar'
+import { teams } from '../data/seed'
+import { MessageBubble } from '../components/MessageBubble'
+import { useSimulatedTraffic } from '../hooks/useSimulatedTraffic'
+
+export const TeamsIndex: FC = () => (
+  <div className="pb-20">
+    <TopBar title="Teams"/>
+    <ul>
+      {teams.map(t => (
+        <li key={t.id} className="px-4 py-3 border-b border-white/5">
+          <div className="font-semibold">{t.name}</div>
+          <div className="text-subtle text-sm">{t.org} · {t.channels.length} channels</div>
+          <div className="mt-2 flex gap-2 overflow-x-auto">
+            {t.channels.map(c => (
+              <a key={c.id} href={`/teams/${t.id}/${c.id}`} className="px-3 py-2 rounded-full bg-white/10 text-sm whitespace-nowrap">#{c.name}{c.unread?` · ${c.unread}`:''}</a>
+            ))}
+          </div>
+        </li>
+      ))}
+    </ul>
+    <TabBar/>
+  </div>
+)
+
+export const ChannelView: FC<{ teamId?: string; channelId?: string }> = ({ teamId, channelId }) => {
+  const team = teams.find(t => t.id === teamId)!
+  const channel = team.channels.find(c => c.id === channelId)!
+  const [msgs, setMsgs] = useState(channel.messages)
+
+  const push = useCallback((where: string, payload: any)=>{
+    if(where === `ch:${teamId}:${channelId}`) setMsgs(m => [...m, payload])
+  },[teamId, channelId])
+  useSimulatedTraffic(push)
+
+  return (
+    <div className="pb-24">
+      <TopBar title={`${team.name} · #${channel.name}`}/>
+      <div className="pt-2">
+        {msgs.map(m => (
+          <MessageBubble key={m.id} author={m.author} text={m.text} timestamp={m.timestamp}/>
+        ))}
+      </div>
+      <TabBar/>
+    </div>
+  )
+}
+
+
+Create or overwrite file: src/pages/Activity.tsx
+
+import { FC } from 'react'
+import { TopBar } from '../components/TopBar'
+import { TabBar } from '../components/TabBar'
+import { activity } from '../data/seed'
+
+export const ActivityPage: FC = () => (
+  <div className="pb-20">
+    <TopBar title="Activity"/>
+    <ul>
+      {activity.map(a => (
+        <li key={a.id} className="px-4 py-3 border-b border-white/5">
+          <div className="text-sm">{a.text}</div>
+          <div className="text-subtle text-xs">{new Date(a.timestamp).toLocaleString()}</div>
+        </li>
+      ))}
+    </ul>
+    <TabBar/>
+  </div>
+)
+
+
+Create or overwrite file: src/pages/Calendar.tsx
+
+import { FC } from 'react'
+import { TopBar } from '../components/TopBar'
+import { TabBar } from '../components/TabBar'
+
+const events = [
+  { id: 'e1', when: 'Today 11:00–11:30', title: 'Risk/Compliance sync – breach remediation' },
+  { id: 'e2', when: 'Today 15:30–16:00', title: 'Corporate treasurer demo – Liquidity WAM/WAL' },
+  { id: 'e3', when: 'Tomorrow 09:00–10:00', title: 'Super fund YFYS workshop' }
+]
+
+export const CalendarPage: FC = () => (
+  <div className="pb-20">
+    <TopBar title="Calendar"/>
+    <ul>
+      {events.map(ev => (
+        <li key={ev.id} className="px-4 py-4 border-b border-white/5">
+          <div className="font-medium">{ev.title}</div>
+          <div className="text-subtle text-sm">{ev.when}</div>
+        </li>
+      ))}
+    </ul>
+    <TabBar/>
+  </div>
+)
+
+
+Create or overwrite file: src/pages/Calls.tsx
+
+import { FC } from 'react'
+import { TopBar } from '../components/TopBar'
+import { TabBar } from '../components/TabBar'
+
+const recent = [
+  { id: 'r1', name: 'Sarah Li', at: '09:42', type: 'video' },
+  { id: 'r2', name: 'James O’Neill', at: 'Yesterday', type: 'audio' }
+]
+
+export const CallsPage: FC = () => (
+  <div className="pb-20">
+    <TopBar title="Calls"/>
+    <ul>
+      {recent.map(r => (
+        <li key={r.id} className="px-4 py-4 border-b border-white/5 flex items-center justify-between">
+          <div>
+            <div className="font-medium">{r.name}</div>
+            <div className="text-subtle text-sm">{r.at}</div>
+          </div>
+          <div className="text-subtle text-xs uppercase">{r.type}</div>
+        </li>
+      ))}
+    </ul>
+    <TabBar/>
+  </div>
+)
+
+
+Create or overwrite file: src/pages/Profile.tsx
+
+import { FC } from 'react'
+import { TopBar } from '../components/TopBar'
+import { TabBar } from '../components/TabBar'
+
+export const ProfilePage: FC = () => (
+  <div className="pb-20">
+    <TopBar title="Profile"/>
+    <div className="p-4">
+      <div className="flex items-center gap-3">
+        <div className="w-14 h-14 rounded-full bg-primary/30 grid place-items-center text-primary font-bold">TF</div>
+        <div>
+          <div className="font-semibold">Thomas Francis</div>
+          <div className="text-subtle text-sm">Analyst · Asset Management · Melbourne</div>
+        </div>
+      </div>
+      <div className="mt-4 text-subtle text-xs">
+        Demo build. For educational purposes only. Not affiliated with Microsoft or J.P. Morgan.
+      </div>
+    </div>
+    <TabBar/>
+  </div>
+)
+
+
+Create or overwrite file: src/App.tsx
+
+import { FC } from 'react'
+import { Routes, Route, Navigate, useParams } from 'react-router-dom'
+import { ChatIndex, DirectChat } from './pages/Chat'
+import { TeamsIndex, ChannelView } from './pages/Teams'
+import { ActivityPage } from './pages/Activity'
+import { CalendarPage } from './pages/Calendar'
+import { CallsPage } from './pages/Calls'
+import { ProfilePage } from './pages/Profile'
+
+const ChannelWrapper: FC = () => {
+  const { teamId, channelId } = useParams()
+  return <ChannelView teamId={teamId} channelId={channelId} />
+}
+
+const App: FC = () => (
+  <Routes>
+    <Route path="/" element={<Navigate to="/chat" replace/>} />
+    <Route path="/chat" element={<ChatIndex/>} />
+    <Route path="/chat/dm/:dmId" element={<DirectChat/>} />
+    <Route path="/teams" element={<TeamsIndex/>} />
+    <Route path="/teams/:teamId/:channelId" element={<ChannelWrapper/>} />
+    <Route path="/activity" element={<ActivityPage/>} />
+    <Route path="/calendar" element={<CalendarPage/>} />
+    <Route path="/calls" element={<CallsPage/>} />
+    <Route path="/me" element={<ProfilePage/>} />
+  </Routes>
+)
+
+export default App
+
+
+After creating all files:
+
+Create placeholder icons:
+
+public/icons/icon-192.png (192×192 solid color)
+
+public/icons/icon-512.png (512×512 solid color)
+
+Run npm run dev and provide the dev URL. Confirm PWA install works and simulated messages appear every ~15s.
+
+Return a 10-step mobile QA checklist.
+
+End of agent script.

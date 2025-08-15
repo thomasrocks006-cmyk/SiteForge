@@ -11,7 +11,7 @@ export const contacts: Contact[] = [
   { id: 'c-sarah', name: 'Sarah Li', role: 'PM', location: 'Sydney', status: 'busy', lastMessagePreview: 'Let us cap TE at 80–100bps.' },
   { id: 'c-ryan', name: 'Ryan Patel', role: 'Risk', location: 'Melbourne', status: 'available', lastMessagePreview: 'Breach cleared. Client notified.' },
   { id: 'c-emma', name: 'Emma Clarke', role: 'ClientService', location: 'Melbourne', status: 'busy', lastMessagePreview: 'Board pack export queued.' },
-  { id: 'c-james', name: 'James O'Neill', role: 'Sales', location: 'Sydney', status: 'dnd', lastMessagePreview: 'Sunsuper workshop invite sent.' },
+  { id: 'c-james', name: 'James O Neill', role: 'Sales', location: 'Sydney', status: 'dnd', lastMessagePreview: 'Sunsuper workshop invite sent.' },
   { id: 'c-nina', name: 'Nina Wong', role: 'Compliance', location: 'Melbourne', status: 'available', lastMessagePreview: 'RG97 note on stamp duty.' }
 ]
 
@@ -45,7 +45,7 @@ export const teams: Team[] = [
     org: 'JPMAM AU',
     channels: [
       ch('general', 'General', [
-        { id: 'm8', author: 'James O'Neill', authorRole: 'Sales', timestamp: ts(120), text: 'Corporate treasurer demo at **101 Collins St** 3:30pm. Thomas, show WAM/WAL tile.' },
+        { id: 'm8', author: 'James O Neill', authorRole: 'Sales', timestamp: ts(120), text: 'Corporate treasurer demo at **101 Collins St** 3:30pm. Thomas, show WAM/WAL tile.' },
         { id: 'm9', author: 'Thomas Francis', timestamp: ts(115), text: 'Built a same-day cutoff banner; holdings CSV export wired.' }
       ])
     ]
